@@ -3,7 +3,7 @@ from datetime import date, datetime
 
 def read_file(filename):
     """ read data from file"""
-    full_path = data_folder + filename
+    full_path = data_folder + "/" + filename
     try:
         with open(full_path, "r") as file:
             return file.readlines()
@@ -11,19 +11,19 @@ def read_file(filename):
         return []
 def write_file(filename, data):
     """To write data in file"""
-    full_path = data_folder + filename
+    full_path = data_folder + "/" + filename
     with open(full_path, "w") as file:
         file.writelines(data)
 
 def append_file(filename, data):
     """To add data in file"""
-    full_path = data_folder + filename
+    full_path = data_folder + "/" + filename
     with open(full_path, "a") as file:
         file.write(data + "\n")
 
 def create_file_if_not_exist(filename):
     """To make new if file not exist"""
-    full_path = data_folder + filename
+    full_path = data_folder + "/" + filename
     try:
         with open(full_path, "r") as file:
             pass

@@ -2,25 +2,17 @@ from util import *
 from validation import *
 from constants import *
 
-def admin_menu():
-    print("Admin menu coming soon.....")
-    
-def booking_menu():
-    print("Booking menu coming soon.....")
-    
-def customer_menu():
-    print("Customer menu coming soon.....")
-    
-def accountant_menu():
-    print("Accountant menu coing soon.....")
-    
-def maintenance_menu():
-    print("Maintenance menu coming soon.....")
-    
+from admin import *
+from booking import *
+from customer import *
+from accountant import *
+from maintenance import *
+  
 def main_menu():
     """Main Menu"""
     initialize_files()
      
+    
 while True:
     print("=" * 50)
     print("\tSHINEONWHEELS CAR WASH SYSTEM\t")
