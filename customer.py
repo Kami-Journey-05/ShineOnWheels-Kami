@@ -17,7 +17,7 @@ def authenticate_customer():
     
     customer_id = input("Enter Customer ID (e.g., CUST001): ")
     
-    customers = read_file(customer_file)
+    customers = read_file(customers_file)
     
     if len(customers) == 0:
         print("\n No customers registered yet!")
@@ -226,7 +226,7 @@ def view_my_loyalty(customer_id):
 # 7. ---------VIEW MY PROFILE---------
 def view_my_profile(customer_id):
     """View customer profile - customers.txt se read"""
-    customers = read_file(customer_file)
+    customers = read_file(customers_file)
         
     print("\n" + "="*50)
     print("   MY PROFILE   ")

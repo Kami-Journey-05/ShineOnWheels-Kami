@@ -272,7 +272,7 @@ def display_records(title, filename, headings=None):
 def view_all_customers():
     display_records(
         "ALL CUSTOMERS",
-        customer_file,
+        customers_file,
         ["Customer ID", "Name", "Phone", "Email", "Registration date"]
     )
 
@@ -482,7 +482,7 @@ def view_available_slots(day=None):
 
 def generate_overall_report():
     services = load_rows(services_file)
-    customers = load_rows(customer_file)
+    customers = load_rows(customers_file)
     bookings = load_rows(booking_file)
     payments = load_rows(payment_file)
     maintenance = load_rows(maintenance_file)
