@@ -35,7 +35,7 @@ def log_operation(operation, detials):
     """To do Operation log """
     timestamp = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
     log_entry = timestamp + "," + operation + "," + detials
-    full_path = data_folder + log_file
+    full_path = data_folder + "/" + log_file
     with open(full_path, "a") as file:
         file.write(log_entry + "\n")
 
