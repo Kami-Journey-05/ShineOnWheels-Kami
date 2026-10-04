@@ -15,9 +15,9 @@ def authenticate_customer():
     print("-----CUSTOMER LOGIN-----")
     print("="*50)
     
-    customer_id = input("Enter Customer ID (e.g., CUST001): ")
+    customer_id = input("Enter Customer ID : ")
     
-    customers = read_file(customers_file)
+    customers = read_file(customer_file)
     
     if len(customers) == 0:
         print("\n No customers registered yet!")
@@ -169,10 +169,6 @@ def view_my_payments(customer_id):
         if parts[1] == customer_id:
             my_booking_ids.append(parts[0])
     
-    if len(my_booking_ids) == 0:
-        print("No bookings found!")
-        return
-    
     payments = read_file(payment_file)
     
     print("Payment ID\tBooking ID\tAmount\tDate\tStatus")
@@ -188,7 +184,7 @@ def view_my_payments(customer_id):
         payment_booking_id = parts[1]
         if payment_booking_id in my_booking_ids:
             found = True
-            print(parts[0] + " | RM" + parts[2] + " | " + parts[3])
+            print(parts[0] + " | " + parts[1] + " | RM" + parts[2] + " | " + parts[3] + " | " + parts[4])
             try:
                 amount_float = float(parts[2])
                 if parts[4] == "Completed":
@@ -226,7 +222,7 @@ def view_my_loyalty(customer_id):
 # 7. ---------VIEW MY PROFILE---------
 def view_my_profile(customer_id):
     """View customer profile - customers.txt se read"""
-    customers = read_file(customers_file)
+    customers = read_file(customer_file)
         
     print("\n" + "="*50)
     print("   MY PROFILE   ")
@@ -264,10 +260,11 @@ def customer_menu():
         print("3. View My Bookings")
         print("4. View Payment History")
         print("5. View My Loyalty Status")
-        print("6. Back to Main Menu")
+        print("6. View My Profile")
+        print("7. Back to Main Menu")
         print("=" * 50)
         
-        choice = input("Enter your choice (1-6): ")
+        choice = input("Enter your choice (1-7): ")
         
         if choice == '1':
             view_available_services()

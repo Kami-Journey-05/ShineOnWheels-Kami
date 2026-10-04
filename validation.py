@@ -2,7 +2,7 @@
 def validate_name(name):
     """Length: 2+ chars, Format: letters + spaces"""
     correct_name = name.replace(" ", " ")
-    return correct_name.isaplha() and len(name.strip()) >=2
+    return correct_name.isalpha() and len(name.strip()) >=2
 
 #2. Phone validation:
 def validate_phone(phone):

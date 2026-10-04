@@ -1,20 +1,18 @@
+# =============================================
+# BOOKING.PY
+# =============================================
 
 from util import *
 from validation import *
 from constants import *
+from datetime import datetime
 
-
-
-CUSTOMERS_FILE = "customers.txt"
-BOOKINGS_FILE = "bookings.txt"
-SERVICES_FILE = "services.txt"
-
-
-# ---------------------------------------------------------
-# 1. DISPLAY BOOKING OFFICER MENU
-# ---------------------------------------------------------
+# =============================================
+# BOOKING OFFICER MENU
+# =============================================
 
 def booking_menu():
+    """Booking Officer Menu"""
     while True:
         print("\n===== BOOKING OFFICER MENU =====")
         print("1. Register New Customer")
@@ -25,308 +23,273 @@ def booking_menu():
         print("6. View Customer History")
         print("7. View Available Services")
         print("8. Back to Main Menu")
-
+        print("="*40)
+        
         choice = input("Enter your choice (1-8): ")
-
-        if choice == "1":
+        
+        if choice == '1':
             register_customer()
-        elif choice == "2":
+        elif choice == '2':
             process_booking()
-        elif choice == "3":
+        elif choice == '3':
             cancel_booking()
-        elif choice == "4":
+        elif choice == '4':
             reschedule_booking()
-        elif choice == "5":
+        elif choice == '5':
             view_all_bookings()
-        elif choice == "6":
+        elif choice == '6':
             view_customer_history()
-        elif choice == "7":
+        elif choice == '7':
             view_available_services()
-        elif choice == "8":
+        elif choice == '8':
             print("Returning to Main Menu...")
             break
         else:
-            print("Invalid choice. Please enter a number from 1 to 8.")
+            print("Invalid choice. Please enter 1-8.")
 
-
-# ---------------------------------------------------------
-# 2. REGISTER NEW CUSTOMER
-# ---------------------------------------------------------
-
-def register_customer():
-    print("\n--- REGISTER NEW CUSTOMER ---")
-
-    name = input("Enter customer name: ")
-    phone = input("Enter phone number: ")
-    address = input("Enter address: ")
-
-    # Read existing customers to generate a new ID
-    try:
-        file = open(CUSTOMERS_FILE, "r")
-        lines = file.readlines()
-        file.close()
-    except FileNotFoundError:
-        lines = []
-
-    new_id = "C" + str(len(lines) + 1)
-
-    record = new_id + "," + name + "," + phone + "," + address + "\n"
-
-    file = open(CUSTOMERS_FILE, "a")
-    file.write(record)
-    file.close()
-
-    print("Customer registered successfully!")
-    print("Customer ID:", new_id)
-
-
-# ---------------------------------------------------------
-# Helper: check if a customer ID exists
-# ---------------------------------------------------------
+# =============================================
+# HELPER: CHECK IF CUSTOMER EXISTS
+# =============================================
 
 def customer_exists(customer_id):
-    try:
-        file = open(CUSTOMERS_FILE, "r")
-    except FileNotFoundError:
-        return False
-
-    for line in file:
-        parts = line.strip().split(",")
+    """Check if a customer ID exists"""
+    customers = read_file(customer_file)
+    
+    for customer in customers:
+        parts = customer.strip().split(",")
+        
+        if len(parts) < 1:
+            continue
+        
         if parts[0] == customer_id:
-            file.close()
             return True
-
-    file.close()
+    
     return False
 
+# =============================================
+# REGISTER NEW CUSTOMER
+# =============================================
 
-# ---------------------------------------------------------
-# 3. PROCESS NEW BOOKING
-# ---------------------------------------------------------
+def register_customer():
+    """Register new customer"""
+    print("\n--- REGISTER NEW CUSTOMER ---")
+
+    name = valid_input("Name: ", validate_name, "Name must be 2+ chars, letters only")
+
+    phone = valid_input("Phone (10-12 digits): ", validate_phone, "Phone must be 10-12 digits")
+
+    email = valid_input("Email: ", validate_email, "Email must contain @ and .")
+    
+    address = input("Address: ")
+    if len(address.strip()) < 2:
+        print("Address too short!")
+        return
+
+    customers = read_file(customer_file)
+    customer_id = "C" + str(len(customers) + 1)
+
+    record = customer_id + "," + name + "," + phone + "," + email + "," + address
+
+    append_file(customer_file, record)
+    
+    print("\n Customer registered successfully!")
+    print("   Customer ID: " + customer_id)
+
+# =============================================
+# PROCESS NEW BOOKING
+# =============================================
 
 def process_booking():
+    """Process new booking"""
     print("\n--- PROCESS NEW BOOKING ---")
-
+    
     customer_id = input("Enter customer ID: ")
-
+    
     if not customer_exists(customer_id):
-        print("Customer ID not found. Please register the customer first.")
+        print("Customer ID not found. Please register first.")
         return
-
-    service = input("Enter service type: ")
-    date = input("Enter booking date (DD/MM/YYYY): ")
-    time = input("Enter booking time: ")
-
+    
+    view_available_services()
+    
+    services = read_file(services_file)
+    if len(services) == 0:
+        return
+    
     try:
-        file = open(BOOKINGS_FILE, "r")
-        lines = file.readlines()
-        file.close()
-    except FileNotFoundError:
-        lines = []
+        choice = int(input("\nSelect service number: "))
+        if choice < 1 or choice > len(services):
+            print("Invalid selection!")
+            return
+    except:
+        print("Invalid input!")
+        return
+    
+    service_data = services[choice-1].strip().split(",")
+    service_name = service_data[0]
+    base_price = float(service_data[1])
+    
+    date = valid_input("Enter Date (DD/MM/YYYY): ", validate_date, "Date must be DD/MM/YYYY")
+    
+    time = valid_input("Enter Time (HH:MM): ", validate_time, "Time must be HH:MM")
 
-    new_id = "B" + str(len(lines) + 1)
-    status = "Confirmed"
+    bookings = read_file(booking_file)
+    booking_id = "BK-" + datetime.now().strftime("%Y%m%d") + "-" + str(len(bookings) + 1000)
+    
+    tax = base_price * tax_rate
+    subtotal = base_price + tax
+    
+    record = booking_id + "," + customer_id + "," + service_name + "," + date + "," + time + ",Confirmed," + str(round(subtotal, 2))
+    
+    append_file(booking_file, record)
+    
+    print("\n Booking confirmed!")
+    print("   Booking ID: " + booking_id)
+    print("   Service: " + service_name)
+    print("   Total: RM" + str(round(subtotal, 2)))
 
-    record = (new_id + "," + customer_id + "," + service + "," +
-              date + "," + time + "," + status + "\n")
-
-    file = open(BOOKINGS_FILE, "a")
-    file.write(record)
-    file.close()
-
-    print("Booking created successfully!")
-    print("Booking ID:", new_id)
-
-
-# ---------------------------------------------------------
-# 4. CANCEL EXISTING BOOKING
-# ---------------------------------------------------------
+# =============================================
+# CANCEL BOOKING
+# =============================================
 
 def cancel_booking():
+    """Cancel booking"""
     print("\n--- CANCEL BOOKING ---")
-
+    
     booking_id = input("Enter booking ID to cancel: ")
-
-    try:
-        file = open(BOOKINGS_FILE, "r")
-        lines = file.readlines()
-        file.close()
-    except FileNotFoundError:
-        print("No bookings found.")
-        return
-
-    updated_lines = []
+    
+    bookings = read_file(booking_file)
+    updated = []
     found = False
-
-    for line in lines:
-        parts = line.strip().split(",")
+    
+    for booking in bookings:
+        parts = booking.strip().split(",")
+        
+        if len(parts) < 6:
+            updated.append(booking)
+            continue
+        
         if parts[0] == booking_id:
             parts[5] = "Cancelled"
             found = True
-            line = ",".join(parts) + "\n"
-        updated_lines.append(line)
-
-    if not found:
-        print("Booking ID not found.")
+        
+        updated.append(",".join(parts) + "\n")
+    
+    if found == False:
+        print("Booking not found!")
         return
+    
+    write_file(booking_file, updated)
+    print("Booking cancelled successfully!")
 
-    file = open(BOOKINGS_FILE, "w")
-    file.writelines(updated_lines)
-    file.close()
-
-    print("Booking", booking_id, "has been cancelled.")
-
-
-# ---------------------------------------------------------
-# 5. RESCHEDULE BOOKING (change date/time)
-# ---------------------------------------------------------
+# =============================================
+# RESCHEDULE BOOKING
+# =============================================
 
 def reschedule_booking():
+    """Reschedule booking"""
     print("\n--- RESCHEDULE BOOKING ---")
-
+    
     booking_id = input("Enter booking ID to reschedule: ")
-
-    try:
-        file = open(BOOKINGS_FILE, "r")
-        lines = file.readlines()
-        file.close()
-    except FileNotFoundError:
-        print("No bookings found.")
-        return
-
-    updated_lines = []
+    
+    bookings = read_file(booking_file)
+    updated = []
     found = False
-
-    for line in lines:
-        parts = line.strip().split(",")
+    
+    for booking in bookings:
+        parts = booking.strip().split(",")
+        
+        if len(parts) < 6:
+            updated.append(booking)
+            continue
+        
         if parts[0] == booking_id:
-            new_date = input("Enter new date (DD/MM/YYYY): ")
-            new_time = input("Enter new time: ")
+            print("Current: " + parts[3] + " at " + parts[4])
+            
+            new_date = valid_input("New Date (DD/MM/YYYY): ", validate_date, "Date must be DD/MM/YYYY")
+            
+            new_time = valid_input("New Time (HH:MM): ", validate_time, "Time must be HH:MM")
+            
             parts[3] = new_date
             parts[4] = new_time
             found = True
-            line = ",".join(parts) + "\n"
-        updated_lines.append(line)
-
-    if not found:
-        print("Booking ID not found.")
+        
+        updated.append(",".join(parts) + "\n")
+    
+    if found == False:
+        print("Booking not found!")
         return
+    
+    write_file(booking_file, updated)
+    print("Booking rescheduled successfully!")
 
-    file = open(BOOKINGS_FILE, "w")
-    file.writelines(updated_lines)
-    file.close()
-
-    print("Booking", booking_id, "has been rescheduled.")
-
-
-# ---------------------------------------------------------
-# 6. VIEW ALL BOOKINGS
-# ---------------------------------------------------------
+# =============================================
+# VIEW ALL BOOKINGS
+# =============================================
 
 def view_all_bookings():
-    print("\n--- ALL BOOKINGS ---")
-
-    try:
-        file = open(BOOKINGS_FILE, "r")
-    except FileNotFoundError:
-        print("No bookings found.")
+    """View all bookings"""
+    bookings = read_file(booking_file)
+    
+    if len(bookings) == 0:
+        print("No bookings found!")
         return
+    
+    print("\n=== ALL BOOKINGS ===")
+    for booking in bookings:
+        print(booking.strip())
 
-    found_any = False
-
-    for line in file:
-        parts = line.strip().split(",")
-        found_any = True
-        print("Booking ID:", parts[0])
-        print("  Customer ID:", parts[1])
-        print("  Service:", parts[2])
-        print("  Date:", parts[3])
-        print("  Time:", parts[4])
-        print("  Status:", parts[5])
-        print("-" * 30)
-
-    file.close()
-
-    if not found_any:
-        print("No bookings found.")
-
-
-# ---------------------------------------------------------
-# 7. VIEW ONE CUSTOMER'S BOOKING HISTORY
-# ---------------------------------------------------------
+# =============================================
+# VIEW CUSTOMER HISTORY
+# =============================================
 
 def view_customer_history():
-    print("\n--- CUSTOMER BOOKING HISTORY ---")
-
+    """View customer booking history"""
+    print("\n--- CUSTOMER HISTORY ---")
+    
     customer_id = input("Enter customer ID: ")
-
-    if not customer_exists(customer_id):
-        print("Customer ID not found.")
-        return
-
-    try:
-        file = open(BOOKINGS_FILE, "r")
-    except FileNotFoundError:
-        print("No booking history found.")
-        return
-
-    found_any = False
-
-    for line in file:
-        parts = line.strip().split(",")
+    
+    bookings = read_file(booking_file)
+    found = False
+    
+    print("\n=== BOOKINGS FOR " + customer_id + " ===")
+    
+    for booking in bookings:
+        parts = booking.strip().split(",")
+        
+        if len(parts) < 2:
+            continue
+        
         if parts[1] == customer_id:
-            found_any = True
-            print("Booking ID:", parts[0])
-            print("  Service:", parts[2])
-            print("  Date:", parts[3])
-            print("  Time:", parts[4])
-            print("  Status:", parts[5])
-            print("-" * 30)
+            found = True
+            print(booking.strip())
+    
+    if found == False:
+        print("No bookings found for this customer!")
 
-    file.close()
-
-    if not found_any:
-        print("This customer has no booking history yet.")
-
-
-# ---------------------------------------------------------
-# 8. VIEW AVAILABLE SERVICES (WITH SLOTS)
-# ---------------------------------------------------------
+# =============================================
+# VIEW AVAILABLE SERVICES
+# =============================================
 
 def view_available_services():
+    """View available services"""
     print("\n--- AVAILABLE SERVICES ---")
-
-    try:
-        file = open(SERVICES_FILE, "r")
-    except FileNotFoundError:
+    
+    services = read_file(services_file)
+    
+    if len(services) == 0:
         print("Services file not found.")
         return
-
+    
     found_any = False
-
-    for line in file:
+    
+    for i, line in enumerate(services, 1):
         parts = line.strip().split(",")
-        # Expected format: service_name,price,available_slots
-        service_name = parts[0]
-        price = parts[1]
-        slots = parts[2]
-
-        if int(slots) > 0:
-            found_any = True
-            print("Service:", service_name)
-            print("  Price: RM" + price)
-            print("  Available Slots:", slots)
-            print("-" * 30)
-
-    file.close()
-
+        
+        if len(parts) < 3:
+            continue
+        
+        found_any = True
+        print(str(i) + ". " + parts[0] + " - RM" + parts[1] + " (" + parts[2] + " mins)")
+    
     if not found_any:
-        print("No services with available slots right now.")
-
-
-# ---------------------------------------------------------
-# RUN DIRECTLY FOR TESTING
-# ---------------------------------------------------------
-
-if __name__ == "__main__":
-    booking_menu()
+        print("No services to display.")
