@@ -1,0 +1,5 @@
+Basic Wash,20.00,15,5
+Premium Wash,35.00,25,8
+Full Detailing,40.00,40,3
+Polish,30.00,10,2
+Interior Cleaning,25.00,10,4

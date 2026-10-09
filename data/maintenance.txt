@@ -1,0 +1,5 @@
+E1,Pressure washer,Service,09/10/2026,Cleaned and oiled,Abdulrehman
+E2,Vaccum Cleaner,Repair,10/10/2026,Motor replaced,Zeeshan
+E3,Steam Cleaner,Replacement,13/10/2026,bcz it cannot work good,Sami ullah
+E4,Polishing machine,Service,15/10/2026,routinewise chk,Shaheer
+E5,Water tank,Repair,14/10/2026,bcz it show leaking,Waleed
